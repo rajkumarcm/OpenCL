@@ -88,7 +88,7 @@ int main(void) {
     size_t len = (size_t)sourceCode.length();
     size_t * len_ptr = &(len);
     cl_program program = clCreateProgramWithSource(opencl->context,
-                                                   2,(const char**)&sourceCode,
+                                                   1,(const char**)&sourceCode,
                                                    NULL,&clStatus);
     
     // Build the program
