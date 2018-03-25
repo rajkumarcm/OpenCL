@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		E11427F9205ADCF5003F9036 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11427F8205ADCF5003F9036 /* main.cpp */; };
 		E1142801205ADE1E003F9036 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1142800205ADE1E003F9036 /* OpenCL.framework */; };
+		E192FD06205C119E0016778F /* Matrix.h in Sources */ = {isa = PBXBuildFile; fileRef = E192FD05205C119E0016778F /* Matrix.h */; };
+		E192FD09205C52D70016778F /* matmul.cl in Sources */ = {isa = PBXBuildFile; fileRef = E192FD08205C52D70016778F /* matmul.cl */; };
+		E1DE5AF12067B3D9002D5489 /* sample.cl in Sources */ = {isa = PBXBuildFile; fileRef = E1DE5AF02067B3D9002D5489 /* sample.cl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +30,10 @@
 		E11427F5205ADCF5003F9036 /* SampleOpenCL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SampleOpenCL; sourceTree = BUILT_PRODUCTS_DIR; };
 		E11427F8205ADCF5003F9036 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E1142800205ADE1E003F9036 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
+		E173AC4B2064DE180029F20B /* OpenCLSetup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenCLSetup.h; sourceTree = "<group>"; };
+		E192FD05205C119E0016778F /* Matrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
+		E192FD08205C52D70016778F /* matmul.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = matmul.cl; sourceTree = "<group>"; };
+		E1DE5AF02067B3D9002D5489 /* sample.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = sample.cl; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +51,8 @@
 		E11427EC205ADCF5003F9036 = {
 			isa = PBXGroup;
 			children = (
+				E192FD07205C52AD0016778F /* Kernels */,
+				E192FD04205C114B0016778F /* Matrix */,
 				E11427F7205ADCF5003F9036 /* SampleOpenCL */,
 				E11427F6205ADCF5003F9036 /* Products */,
 				E11427FF205ADE1E003F9036 /* Frameworks */,
@@ -62,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				E11427F8205ADCF5003F9036 /* main.cpp */,
+				E173AC4B2064DE180029F20B /* OpenCLSetup.h */,
 			);
 			path = SampleOpenCL;
 			sourceTree = "<group>";
@@ -72,6 +82,23 @@
 				E1142800205ADE1E003F9036 /* OpenCL.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E192FD04205C114B0016778F /* Matrix */ = {
+			isa = PBXGroup;
+			children = (
+				E192FD05205C119E0016778F /* Matrix.h */,
+			);
+			path = Matrix;
+			sourceTree = "<group>";
+		};
+		E192FD07205C52AD0016778F /* Kernels */ = {
+			isa = PBXGroup;
+			children = (
+				E192FD08205C52D70016778F /* matmul.cl */,
+				E1DE5AF02067B3D9002D5489 /* sample.cl */,
+			);
+			path = Kernels;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -131,7 +158,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1DE5AF12067B3D9002D5489 /* sample.cl in Sources */,
+				E192FD06205C119E0016778F /* Matrix.h in Sources */,
 				E11427F9205ADCF5003F9036 /* main.cpp in Sources */,
+				E192FD09205C52D70016778F /* matmul.cl in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
