@@ -8,20 +8,24 @@
 
 typedef unsigned short int u_sint;
 
-float* get_row(__constant float * A,
+void get_row(__constant float * A,
                u_sint batch,
                u_sint r_index,
                u_sint height,
-               u_sint width)
+               u_sint width,
+               __private float ** array)
 {
-    float array[width];
-    u_sint s_i = batch*(height*width);
-    u_sint e_i = s_i + (height*width);
+    float temp[width];
+    u_sint s_i = (batch*(height*width))+(r_index*width);
+    u_sint e_i = s_i + width;
     for(u_sint i = s_i; i < e_i; i++)
     {
-        array[i] = A[i];
+        temp[i] = A[i];
+        printf("%.2f, ",A[i]);
     }
-    return array;
+    printf("\n");
+    *array = temp;
+    //return array;
 }
 
 float* get_column(__constant float * A,
@@ -64,21 +68,34 @@ void matmul(__constant float * A,
             __constant u_sint * size_B,
             __global float * result) {
     
-    size_t w_id = get_group_id(0);
-    size_t l_id = get_local_id(0);
+    u_sint w_id = (u_sint)get_group_id(0);
+    u_sint l_id = (u_sint)get_local_id(0);
+    u_sint global_id = (u_sint)get_global_id(0);
+   
+//    u_sint local_id = w_id * size_A[1] * size_B[1] + l_id;
     
-    printf("global_id: %d, group_id: %d, local_id: %d\n",(int)get_global_id(0),(int)w_id,(int)l_id);
-    u_sint local_id = w_id * size_A[2] * size_B[0] + l_id;
-
+    
     u_sint m = size_A[1];
     u_sint n = size_B[1];
     
-    u_sint row = (l_id/m);
-    u_sint col = (l_id-((row-1)*n));
+    u_sint row;
+    u_sint col;
     
-    float * vec1 = get_row(A,w_id,row,size_A[1],size_A[2]);
+    // Do not type cast as I have deliberately
+    // left this to achieve non-decimal value.
+    row = l_id/n;
+    col = (l_id-(row*n));
+    
+    
+    float * vec1;
+    get_row(A,w_id,row,size_A[1],size_A[2],&vec1);
     float * vec2 = get_column(B,w_id,col,size_B[0],size_B[1]);
     
+    printf("group_id: %d, local_id: %d, value: %.2f\n",
+           w_id,
+           l_id,
+           vec1[2]);
     
-    result[local_id] = inner_product(vec1,vec2,size_A[2]);
+    result[global_id] = inner_product(vec1,vec2,size_A[2]);
+    
 }
