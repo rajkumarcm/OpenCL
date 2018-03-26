@@ -124,13 +124,13 @@ void OpenCLSetup::get_devices(cl_platform_id* platforms, const cl_uint num_platf
     //Get the devices list and choose the device you want to run on
     cl_int clStatus;
     
-    clStatus = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, 0,
+    clStatus = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, 0,
                               NULL, &num_devices);
     *device_list = (cl_device_id *)
     malloc(sizeof(cl_device_id)*num_devices);
     
     clStatus = clGetDeviceIDs(platforms[0],
-                              CL_DEVICE_TYPE_ALL, num_devices, *device_list, NULL);
+                              CL_DEVICE_TYPE_GPU, num_devices, *device_list, NULL);
     
     printf("The following devices were found under the platform: \n");
     for (unsigned short int i = 0; i < num_devices; i++)

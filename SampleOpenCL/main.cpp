@@ -82,34 +82,41 @@ int main(void) {
     cl_int clStatus;
     
     // Create memory buffers on the device for each vector
+    size_t A_clmem_size = sizeof(float)*(size_A[0]*size_A[1]*size_A[2]);
     cl_mem A_clmem = clCreateBuffer(opencl->context, CL_MEM_READ_ONLY,
-                                    sizeof(A), NULL, &clStatus);
+                                    A_clmem_size, NULL, &clStatus);
+    size_t B_clmem_size = sizeof(float)*(size_B[0]*size_B[1]);
     cl_mem B_clmem = clCreateBuffer(opencl->context, CL_MEM_READ_ONLY,
-                                    sizeof(B), NULL, &clStatus);
+                                    B_clmem_size, NULL, &clStatus);
+    size_t C_clmem_size = sizeof(float)*(size_C[0]*size_C[1]*size_C[2]);
     cl_mem C_clmem = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY,
-                                    sizeof(C), NULL, &clStatus);
+                                    C_clmem_size, NULL, &clStatus);
+    size_t A_clsize_size = sizeof(size_t)*3;
     cl_mem A_clsize = clCreateBuffer(opencl->context, CL_MEM_READ_ONLY,
-                                     sizeof(size_A), NULL, &clStatus);
+                                     A_clsize_size, NULL, &clStatus);
+    size_t B_clsize_size = sizeof(size_t)*2;
     cl_mem B_clsize = clCreateBuffer(opencl->context, CL_MEM_READ_ONLY,
-                                     sizeof(size_B), NULL, &clStatus);
+                                     B_clsize_size, NULL, &clStatus);
     
     
     // Copy the Buffer A and B to the device
     clStatus = clEnqueueWriteBuffer(opencl->command_queues[0], A_clmem,
-                                    CL_TRUE, 0, sizeof(A),
+                                    CL_TRUE, 0, A_clmem_size,
                                     A, 0, NULL, NULL);
     clStatus = clEnqueueWriteBuffer(opencl->command_queues[0], B_clmem,
-                                    CL_TRUE, 0, sizeof(B),
+                                    CL_TRUE, 0, B_clmem_size,
                                     B, 0, NULL, NULL);
     clStatus = clEnqueueWriteBuffer(opencl->command_queues[0], A_clsize,
-                                    CL_TRUE, 0, sizeof(size_A),
+                                    CL_TRUE, 0, A_clsize_size,
                                     size_A, 0, NULL, NULL);
     clStatus = clEnqueueWriteBuffer(opencl->command_queues[0], B_clsize,
-                                    CL_TRUE, 0, sizeof(size_B),
+                                    CL_TRUE, 0, B_clsize_size,
                                     size_B, 0, NULL, NULL);
     
    
-    string sourceCode = readFile("/Users/rajkumar/Documents/OpenCL/Kernels/matmul.cl");
+    string sourceCode = readFile
+                            ("/Users/rajkumarconjeevarammohan/Documents\ -\ "
+                             "local/OpenCL/Kernels/matmul.cl");
     
     // Create a program from the kernel source
     const char *source_chr = sourceCode.c_str();
@@ -125,29 +132,16 @@ int main(void) {
     cl_kernel kernel = clCreateKernel(program, "matmul",
                                       &clStatus);
     
-    size_t valueSize,cl_size_a,cl_size_b,cl_size_A,cl_size_B,cl_size_C;
-    clGetMemObjectInfo(A_clsize, CL_MEM_SIZE, NULL, NULL, &valueSize);
-    clGetMemObjectInfo(A_clsize, CL_MEM_SIZE, valueSize, &cl_size_a, NULL);
-    clGetMemObjectInfo(B_clsize, CL_MEM_SIZE, NULL, NULL, &valueSize);
-    clGetMemObjectInfo(B_clsize, CL_MEM_SIZE, valueSize, &cl_size_b, NULL);
-    
-    clGetMemObjectInfo(A_clmem, CL_MEM_SIZE, NULL, NULL, &valueSize);
-    clGetMemObjectInfo(A_clmem, CL_MEM_SIZE, valueSize, &cl_size_A, NULL);
-    clGetMemObjectInfo(B_clmem, CL_MEM_SIZE, NULL, NULL, &valueSize);
-    clGetMemObjectInfo(B_clmem, CL_MEM_SIZE, valueSize, &cl_size_B, NULL);
-    clGetMemObjectInfo(C_clmem, CL_MEM_SIZE, NULL, NULL, &valueSize);
-    clGetMemObjectInfo(C_clmem, CL_MEM_SIZE, valueSize, &cl_size_C, NULL);
-    
     // Set the arguments of the
-    clStatus = clSetKernelArg(kernel, 0, cl_size_A,
+    clStatus = clSetKernelArg(kernel, 0, sizeof(cl_mem),
                               (void *)&A_clmem);
-    clStatus = clSetKernelArg(kernel, 1, cl_size_B,
+    clStatus = clSetKernelArg(kernel, 1, sizeof(cl_mem),
                               (void *)&B_clmem);
-    clStatus = clSetKernelArg(kernel, 2, cl_size_a,
+    clStatus = clSetKernelArg(kernel, 2, sizeof(cl_mem),
                               (void *)&A_clsize);
-    clStatus = clSetKernelArg(kernel, 3, cl_size_b,
+    clStatus = clSetKernelArg(kernel, 3, sizeof(cl_mem),
                               (void *)&B_clsize);
-    clStatus = clSetKernelArg(kernel, 4, cl_size_C,
+    clStatus = clSetKernelArg(kernel, 4, sizeof(cl_mem),
                               (void *)&C_clmem);
     
     // Execute the OpenCL kernel on the list
@@ -159,7 +153,7 @@ int main(void) {
     
     // Number of work items that make up a workgroup
     
-    size_t * local_size = new size_t[work_dim]{size_C[1]*size_C[2]};
+//    size_t * local_size = new size_t[3]{size_C[1]*size_C[2],0,0};
 //    size_t local_size = size_C[1]*size_C[2];
     
     clStatus = clEnqueueNDRangeKernel(opencl->command_queues[0],
@@ -167,12 +161,12 @@ int main(void) {
                                       work_dim,
                                       NULL,
                                       global_size,
-                                      local_size,
+                                      NULL,
                                       0, NULL, NULL);
     
     // Read the cl memory C_clmem on device to the host variable C
     clStatus = clEnqueueReadBuffer(opencl->command_queues[0], C_clmem,
-                                   CL_TRUE, 0, sizeof(C), C, 0, NULL, NULL);
+                                   CL_TRUE, 0, C_clmem_size, C, 0, NULL, NULL);
     
     // Clean up and wait for all the comands to complete.
     clStatus = clFlush(opencl->command_queues[0]);

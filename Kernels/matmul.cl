@@ -57,7 +57,7 @@ float inner_product(float* vec1,
     return result;
 }
 
-__kernel
+__kernel //__attribute__((reqd_work_group_size(8,0,0)))
 void matmul(__constant float * A,
             __constant float * B,
             __constant u_sint * size_A,
@@ -67,6 +67,7 @@ void matmul(__constant float * A,
     size_t w_id = get_group_id(0);
     size_t l_id = get_local_id(0);
     
+    printf("global_id: %d, group_id: %d, local_id: %d\n",(int)get_global_id(0),(int)w_id,(int)l_id);
     u_sint local_id = w_id * size_A[2] * size_B[0] + l_id;
 
     u_sint m = size_A[1];
