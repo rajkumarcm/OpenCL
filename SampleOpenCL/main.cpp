@@ -25,17 +25,18 @@ int main(void) {
     
     // Allocate space for vectors A, B and C
     //------------------------------------------------
-    size_t * size_A = new size_t[3]{1,2,2};
+    size_t * size_A = new size_t[3]{3,2,2};
     
     // Get the truncated normal values in 1D array
-    float * A = new float[size_A[1]*size_A[2]]{-0.723522,0.217484,-1.06868,0.806425};
-    
-//    m.truncated_normal(0, 1, size_A[1]*size_A[2], &A);
+    float * A = new float[size_A[0]*size_A[1]*size_A[2]];//{-0.723522,0.217484,-1.06868,0.806425};
+    m.truncated_normal(0, 1, size_A[0]*size_A[1]*size_A[2], &A);
+    cout << "Matrix A: " << endl;
     for(u_sint batch = 0; batch < size_A[0]; batch++)
     {
-        cout << "Matrix A:" << endl;
+        printf("batch %d:\n",batch);
         u_sint s_i = batch*(size_A[1]*size_A[2]);
-        for(u_sint i = s_i; i < (size_A[1]*size_A[2]); i+=size_A[2])
+        printf("s_i: %d\n",s_i);
+        for(u_sint i = s_i; i < s_i+(size_A[1]*size_A[2]); i+=size_A[2])
         {
             for(u_sint j = i; j < (i+size_A[2]); j++)
             {
@@ -55,8 +56,8 @@ int main(void) {
     
     // Get the truncated normal values in 1D array
     cout << "Matrix B:" << endl;
-    float * B = new float[size_B[0]*size_B[1]]{-1.3742,0.59425,0.891999,1.26432,-0.511385,0.93222,-0.56974,-1.240};
-//    m.truncated_normal(0, 1, size_B[0]*size_B[1], &B);
+    float * B = new float[size_B[0]*size_B[1]];//{-1.3742,0.59425,0.891999,1.26432,-0.511385,0.93222,-0.56974,-1.240};
+    m.truncated_normal(0, 1, size_B[0]*size_B[1], &B);
     u_sint batch = 0;
     u_sint s_i = batch*(size_B[0]*size_B[1]);
     for(u_sint i = s_i; i < (size_B[0]*size_B[1]); i+=size_B[1])
@@ -92,7 +93,6 @@ int main(void) {
     cl_mem B_clsize = clCreateBuffer(opencl->context, CL_MEM_READ_ONLY,
                                      sizeof(size_B), NULL, &clStatus);
     
-    cout << "size_B: " << sizeof(size_B) << endl;
     
     // Copy the Buffer A and B to the device
     clStatus = clEnqueueWriteBuffer(opencl->command_queues[0], A_clmem,
@@ -151,16 +151,22 @@ int main(void) {
                               (void *)&C_clmem);
     
     // Execute the OpenCL kernel on the list
-    size_t global_size = size_C[0]*size_C[1]*size_C[2]; // Process the entire lists
+    cl_uint work_dim = 1;
+    
+    // Process the entire lists
+    size_t *global_size = new size_t[work_dim]{size_C[0]*size_C[1]*size_C[2]};
+//    size_t global_size = size_C[0]*size_C[1]*size_C[2];
     
     // Number of work items that make up a workgroup
     
-    size_t * local_size = new size_t[1]{size_C[1]*size_C[2]};
+    size_t * local_size = new size_t[work_dim]{size_C[1]*size_C[2]};
+//    size_t local_size = size_C[1]*size_C[2];
     
     clStatus = clEnqueueNDRangeKernel(opencl->command_queues[0],
                                       kernel,
-                                      1,NULL,
-                                      &global_size,
+                                      work_dim,
+                                      NULL,
+                                      global_size,
                                       local_size,
                                       0, NULL, NULL);
     
