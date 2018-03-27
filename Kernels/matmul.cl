@@ -13,18 +13,22 @@ void get_row(__constant float * A,
                u_sint r_index,
                u_sint height,
                u_sint width,
-               __private float ** array)
+               private float * array)
 {
-    float temp[width];
+
     u_sint s_i = (batch*(height*width))+(r_index*width);
     u_sint e_i = s_i + width;
+    u_sint count = 0;
     for(u_sint i = s_i; i < e_i; i++)
     {
-        temp[i] = A[i];
+        array[count] = A[i];
         printf("%.2f, ",A[i]);
+        printf("count: %d, %.2f, ",count,array[count]);
+        count++;
     }
+
+    printf(", %p",array);
     printf("\n");
-    *array = temp;
     //return array;
 }
 
@@ -87,14 +91,13 @@ void matmul(__constant float * A,
     col = (l_id-(row*n));
     
     
-    float * vec1;
-    get_row(A,w_id,row,size_A[1],size_A[2],&vec1);
+    __private float vec1[size_A[2]]; get_row(A,w_id,row,size_A[1],size_A[2],vec1);
     float * vec2 = get_column(B,w_id,col,size_B[0],size_B[1]);
     
     printf("group_id: %d, local_id: %d, value: %.2f\n",
            w_id,
            l_id,
-           vec1[2]);
+           vec1[0]);
     
     result[global_id] = inner_product(vec1,vec2,size_A[2]);
     
